@@ -6,6 +6,7 @@ interface Workflow {
   id: WorkflowId;
   name: string;
   description: string;
+  prompt: string;
 }
 
 interface WorkflowSelectorProps {

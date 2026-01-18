@@ -106,8 +106,14 @@ export function getWorkflowName(workflowId: WorkflowId) {
 }
 
 export function getAllWorkflows() {
-  return Object.entries(SYSTEM_PROMPTS).map(([key, value]) => ({
-    id: key as WorkflowId,
-    ...value,
-  }));
+  return Object.keys(SYSTEM_PROMPTS).map((key) => {
+    const workflowKey = key as WorkflowId;
+    const workflow = SYSTEM_PROMPTS[workflowKey];
+    return {
+      id: workflowKey,
+      name: workflow.name,
+      description: workflow.description,
+      prompt: workflow.prompt,
+    };
+  });
 }

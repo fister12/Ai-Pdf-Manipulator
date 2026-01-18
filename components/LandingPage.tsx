@@ -15,7 +15,12 @@ export default function LandingPage() {
   const [processedText, setProcessedText] = useState<string | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  const workflows = getAllWorkflows();
+  const workflows = getAllWorkflows() as Array<{
+    id: WorkflowId;
+    name: string;
+    description: string;
+    prompt: string;
+  }>;
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
@@ -79,6 +84,40 @@ export default function LandingPage() {
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!processedText) return;
+
+    try {
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: processedText,
+          title: selectedWorkflow ? getAllWorkflows().find(w => w.id === selectedWorkflow)?.name : 'Processed Notes',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const element = document.createElement('a');
+      element.href = url;
+      element.download = 'processed-notes.pdf';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading PDF:', err);
+      alert('Failed to generate PDF. Please try again.');
     }
   };
 
@@ -156,6 +195,12 @@ export default function LandingPage() {
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
                 >
                   Copy to Clipboard
+                </button>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition"
+                >
+                  Download as PDF
                 </button>
                 <button
                   onClick={handleDownloadText}
