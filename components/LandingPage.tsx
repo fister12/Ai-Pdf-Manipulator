@@ -38,7 +38,7 @@ export default function LandingPage() {
 
     try {
       // If user selected the handwritten->typed workflow, call the specialized endpoint
-      if (workflowId === 'handwritten_to_typed') {
+      if (workflowId === 'HANDWRITTEN_TO_TYPED') {
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('workflowId', workflowId);
