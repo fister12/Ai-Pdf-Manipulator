@@ -15,6 +15,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Early size check to return a JSON error before attempting heavy processing.
+    // Note: some platforms reject large requests before reaching this handler.
+    const MAX_BYTES = 8 * 1024 * 1024; // 8MB
+    // The File API exposes size in browsers; handle when available
+    // @ts-ignore
+    const fileSize = (file as any).size;
+    if (fileSize && fileSize > MAX_BYTES) {
+      return NextResponse.json({ error: 'File too large. Max 8MB allowed.' }, { status: 413 });
+    }
+
     if (!workflowId) {
       return NextResponse.json({ error: 'No workflow specified' }, { status: 400 });
     }

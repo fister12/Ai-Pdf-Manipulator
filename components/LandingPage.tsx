@@ -49,11 +49,28 @@ export default function LandingPage() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to process handwritten PDF');
+          let errMsg = 'Failed to process handwritten PDF';
+          try {
+            const errorData = await response.json();
+            errMsg = errorData.error || errMsg;
+          } catch (e) {
+            // fallback to text when server returns plain text or HTML
+            try {
+              const text = await response.text();
+              if (text) errMsg = text;
+            } catch {}
+          }
+          throw new Error(errMsg);
         }
 
-        const data = await response.json();
+        let data: any;
+        try {
+          data = await response.json();
+        } catch (e) {
+          // If the server returned non-JSON (e.g., plain text error), read and surface it
+          const text = await response.text();
+          throw new Error(text || 'Invalid JSON response from server');
+        }
         // set processed text so users can view it
         setProcessedText(data.processedText);
 
@@ -86,11 +103,26 @@ export default function LandingPage() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to process PDF');
+          let errMsg = 'Failed to process PDF';
+          try {
+            const errorData = await response.json();
+            errMsg = errorData.error || errMsg;
+          } catch (e) {
+            try {
+              const text = await response.text();
+              if (text) errMsg = text;
+            } catch {}
+          }
+          throw new Error(errMsg);
         }
 
-        const data = await response.json();
+        let data: any;
+        try {
+          data = await response.json();
+        } catch (e) {
+          const text = await response.text();
+          throw new Error(text || 'Invalid JSON response from server');
+        }
         setProcessedText(data.processedText);
       }
     } catch (err) {
