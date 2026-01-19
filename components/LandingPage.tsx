@@ -37,22 +37,62 @@ export default function LandingPage() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('workflowId', workflowId);
+      // If user selected the handwritten->typed workflow, call the specialized endpoint
+      if (workflowId === 'handwritten_to_typed') {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('workflowId', workflowId);
 
-      const response = await fetch('/api/process-pdf', {
-        method: 'POST',
-        body: formData,
-      });
+        const response = await fetch('/api/handwritten-to-pdf', {
+          method: 'POST',
+          body: formData,
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to process PDF');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to process handwritten PDF');
+        }
+
+        const data = await response.json();
+        // set processed text so users can view it
+        setProcessedText(data.processedText);
+
+        // download the PDF returned as base64
+        if (data.pdfBase64) {
+          const binary = atob(data.pdfBase64);
+          const len = binary.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'handwritten-typed.pdf';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      } else {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('workflowId', workflowId);
+
+        const response = await fetch('/api/process-pdf', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to process PDF');
+        }
+
+        const data = await response.json();
+        setProcessedText(data.processedText);
       }
-
-      const data = await response.json();
-      setProcessedText(data.processedText);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
