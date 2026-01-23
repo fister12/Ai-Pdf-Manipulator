@@ -1,5 +1,5 @@
-import LandingPage from "@/components/LandingPage";
+import TeachingAssistantHub from "@/components/TeachingAssistantHub";
 
 export default function Home() {
-  return <LandingPage />;
+  return <TeachingAssistantHub />;
 }
