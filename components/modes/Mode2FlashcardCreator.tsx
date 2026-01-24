@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import TopicGraphVisualizer from '@/components/TopicGraphVisualizer';
+import ConceptMapDiagram from '@/components/ConceptMapDiagram';
 
 interface Mode2Props {
   onHome: () => void;
@@ -18,6 +20,9 @@ interface FlashcardsResult {
   flashcards: Flashcard[];
   totalCards: number;
 }
+
+
+
 
 export default function Mode2FlashcardCreator({ onHome }: Mode2Props) {
   const [topic, setTopic] = useState('');
@@ -214,6 +219,18 @@ function FlashcardsView({
           {result.totalCards} flashcards created | {filteredCards.length} in current view
         </p>
       </div>
+
+      {/* Topic Graph Visualizer */}
+      <TopicGraphVisualizer 
+        topic={result.topic} 
+        flashcards={result.flashcards}
+      />
+
+      {/* Concept Map Diagram */}
+      <ConceptMapDiagram 
+        topic={result.topic}
+        flashcards={result.flashcards}
+      />
 
       {/* Difficulty Filter */}
       <div className="flex gap-2 justify-center mb-6 flex-wrap">
