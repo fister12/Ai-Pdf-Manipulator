@@ -1,6 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Brain, Sparkles, BookOpen, MessageSquare, Send, ChevronRight, Lightbulb, CheckCircle } from 'lucide-react';
+import {
+  ModeWrapper,
+  ModeCard,
+  ModeSectionTitle,
+  ModeButton,
+  ModeInput,
+  ModeLoading,
+  ModeError,
+} from './ModeWrapper';
 
 interface Mode3Props {
   onHome: () => void;
@@ -54,147 +64,119 @@ export default function Mode3StudyMode({ onHome }: Mode3Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-slate-950 dark:to-slate-900 p-4">
-      <button
-        onClick={onHome}
-        className="fixed top-4 left-4 bg-gray-700 dark:bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-slate-700 transition"
-      >
-        ← Back to Home
-      </button>
+    <ModeWrapper
+      title="Study Mode"
+      description="50% Teaching + 50% Questioning for deep learning"
+      icon={<Brain className="h-6 w-6" />}
+      onBack={onHome}
+      headerColor="from-green-500 to-green-600"
+    >
+      {isProcessing ? (
+        <ModeLoading text="Starting your study session..." />
+      ) : !studyStarted ? (
+        <div className="space-y-6">
+          <ModeCard>
+            <ModeInput
+              label="What topic would you like to study?"
+              placeholder="e.g., 'Photosynthesis', 'Algebra Basics', 'French Grammar'"
+              value={topic}
+              onChange={setTopic}
+            />
 
-      <div className="max-w-4xl mx-auto mt-8">
-        {!studyStarted ? (
-          <>
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">🧠 Study Mode</h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
-                50% Teaching + 50% Questioning for deep learning
-              </p>
+            <div className="mt-4">
+              <ModeInput
+                label="Study Material (optional)"
+                placeholder="Paste your study notes, lecture slides, or textbook excerpts here. This helps the AI teach from your specific material."
+                value={material}
+                onChange={setMaterial}
+                type="textarea"
+                rows={5}
+              />
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 mb-6">
-              <div className="mb-6">
-                <label className="block text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  What topic would you like to study?
-                </label>
-                <input
-                  type="text"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="e.g., 'Photosynthesis', 'Algebra Basics', 'French Grammar'"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
-                />
-              </div>
+            {error && <ModeError message={error} className="mt-4" />}
 
-              <div className="mb-6">
-                <label className="block text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  Study Material (optional - paste your notes or textbook content)
-                </label>
-                <textarea
-                  value={material}
-                  onChange={(e) => setMaterial(e.target.value)}
-                  placeholder="Paste your study notes, lecture slides, or textbook excerpts here. This helps the AI teach from your specific material."
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 h-40 resize-none dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
-                />
-              </div>
+            <ModeButton
+              onClick={handleStartStudy}
+              disabled={!topic.trim()}
+              className="mt-6"
+            >
+              <Sparkles className="mr-2 inline h-4 w-4" />
+              Start Study Session
+            </ModeButton>
+          </ModeCard>
 
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg">
-                  <p className="text-red-700 dark:text-red-300">{error}</p>
-                </div>
-              )}
-
-              <button
-                onClick={handleStartStudy}
-                disabled={isProcessing || !topic.trim()}
-                className="w-full bg-green-600 dark:bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-700 dark:hover:bg-green-600 transition disabled:bg-gray-400 dark:disabled:bg-gray-600"
-              >
-                {isProcessing ? 'Starting Study Session...' : 'Start Study Session'}
-              </button>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  🎓 Socratic Method Approach
-                </h3>
-                <ul className="space-y-3 text-gray-600 dark:text-gray-300">
-                  <li className="flex items-start">
-                    <span className="text-green-600 dark:text-green-400 mr-2">✓</span>
-                    <span>Teacher explains concepts (50%)</span>
+          <div className="grid gap-6 md:grid-cols-2">
+            <ModeCard>
+              <ModeSectionTitle
+                icon={<BookOpen className="h-5 w-5 text-green-500" />}
+                title="Socratic Method Approach"
+              />
+              <ul className="space-y-3 text-sm">
+                {[
+                  'Teacher explains concepts (50%)',
+                  'You answer guided questions (50%)',
+                  'Progressive difficulty levels',
+                  'Learn through active thinking',
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500" />
+                    <span className="text-muted-foreground">{item}</span>
                   </li>
-                  <li className="flex items-start">
-                    <span className="text-green-600 dark:text-green-400 mr-2">✓</span>
-                    <span>You answer guided questions (50%)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-600 dark:text-green-400 mr-2">✓</span>
-                    <span>Progressive difficulty levels</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-600 dark:text-green-400 mr-2">✓</span>
-                    <span>Learn through active thinking</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  📝 Study Session Structure
-                </h3>
-                <ol className="space-y-3 text-gray-600 dark:text-gray-300 text-sm">
-                  <li>
-                    <strong className="text-green-600 dark:text-green-400">1. Teaching</strong> - Learn a concept
-                  </li>
-                  <li>
-                    <strong className="text-green-600 dark:text-green-400">2. Question</strong> - Apply your
-                    knowledge
-                  </li>
-                  <li>
-                    <strong className="text-green-600 dark:text-green-400">3. Feedback</strong> - Get corrections
-                  </li>
-                  <li>
-                    <strong className="text-green-600 dark:text-green-400">4. Repeat</strong> - Continue with
-                    new topics
-                  </li>
-                </ol>
-              </div>
-            </div>
-
-            <div className="mt-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">💡 Pro Tips</h3>
-              <ul className="text-gray-700 dark:text-gray-300 space-y-2 text-sm">
-                <li>
-                  • <strong>Without material:</strong> AI will teach from general knowledge of
-                  the topic
-                </li>
-                <li>
-                  • <strong>With material:</strong> AI will teach specifically from your notes
-                  or textbook
-                </li>
-                <li>
-                  • <strong>Best results:</strong> Paste your actual class notes for most
-                  relevant teaching
-                </li>
-                <li>
-                  • <strong>Interactive:</strong> Your answers shape how the AI continues teaching
-                </li>
+                ))}
               </ul>
-            </div>
-          </>
-        ) : (
-          <StudySessionView
-            topic={topic}
-            material={material}
-            onEnd={() => {
-              setStudyStarted(false);
-              setTopic('');
-              setMaterial('');
-            }}
-          />
-        )}
-      </div>
-    </div>
+            </ModeCard>
+
+            <ModeCard>
+              <ModeSectionTitle
+                icon={<MessageSquare className="h-5 w-5 text-green-500" />}
+                title="Study Session Structure"
+              />
+              <ol className="space-y-3 text-sm">
+                {[
+                  { step: 'Teaching', desc: 'Learn a concept' },
+                  { step: 'Question', desc: 'Apply your knowledge' },
+                  { step: 'Feedback', desc: 'Get corrections' },
+                  { step: 'Repeat', desc: 'Continue with new topics' },
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-600 dark:bg-green-900 dark:text-green-400">
+                      {idx + 1}
+                    </span>
+                    <span className="text-muted-foreground">
+                      <strong className="text-foreground">{item.step}</strong> - {item.desc}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </ModeCard>
+          </div>
+
+          <ModeCard className="border-blue-500/20 bg-blue-500/5">
+            <ModeSectionTitle
+              icon={<Lightbulb className="h-5 w-5 text-yellow-500" />}
+              title="Pro Tips"
+            />
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• <strong>Without material:</strong> AI will teach from general knowledge of the topic</li>
+              <li>• <strong>With material:</strong> AI will teach specifically from your notes or textbook</li>
+              <li>• <strong>Best results:</strong> Paste your actual class notes for most relevant teaching</li>
+              <li>• <strong>Interactive:</strong> Your answers shape how the AI continues teaching</li>
+            </ul>
+          </ModeCard>
+        </div>
+      ) : (
+        <StudySessionView
+          topic={topic}
+          material={material}
+          onEnd={() => {
+            setStudyStarted(false);
+            setTopic('');
+            setMaterial('');
+          }}
+        />
+      )}
+    </ModeWrapper>
   );
 }
 
@@ -211,11 +193,11 @@ function StudySessionView({
   const [currentPointIndex, setCurrentPointIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Load initial study points
   useEffect(() => {
     const loadStudyPoints = async () => {
       try {
@@ -248,7 +230,7 @@ function StudySessionView({
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError(null);
 
     try {
@@ -272,7 +254,7 @@ function StudySessionView({
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to evaluate answer');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -283,85 +265,67 @@ function StudySessionView({
       setIsAnswered(false);
       setFeedback('');
     } else {
-      // Option to load more or end session
-      handleEnd();
+      onEnd();
     }
   };
 
-  const handleEnd = () => {
-    onEnd();
-  };
-
   if (isLoading && studyPoints.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-5xl mb-4">⏳</div>
-        <p className="text-xl text-gray-700 dark:text-gray-300">Preparing your study session...</p>
-      </div>
-    );
+    return <ModeLoading text="Preparing your study session..." />;
   }
 
   if (studyPoints.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-700 dark:text-red-400">{error || 'Failed to load study content'}</p>
-        <button
-          onClick={handleEnd}
-          className="mt-4 bg-gray-600 dark:bg-gray-700 text-white px-6 py-2 rounded-lg"
-        >
-          Go Back
-        </button>
+        <ModeError message={error || 'Failed to load study content'} onRetry={onEnd} />
       </div>
     );
   }
 
   const currentPoint = studyPoints[currentPointIndex];
+  const progress = ((currentPointIndex + 1) / studyPoints.length) * 100;
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          🧠 Study Session: {topic}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300">
+    <div className="space-y-6">
+      {/* Header with progress */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold">Study Session: {topic}</h2>
+        <p className="mt-1 text-muted-foreground">
           Question {currentPointIndex + 1} of {studyPoints.length}
         </p>
-        <div className="mt-4 w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+        <div className="mx-auto mt-4 h-2 max-w-md overflow-hidden rounded-full bg-muted">
           <div
-            className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all"
-            style={{
-              width: `${((currentPointIndex + 1) / studyPoints.length) * 100}%`,
-            }}
-          ></div>
+            className="h-full rounded-full bg-green-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
       {/* Teaching Point */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg shadow-lg p-8 mb-6 border-2 border-green-200 dark:border-green-800">
-        <div className="flex items-start gap-4">
-          <span className="text-4xl">📚</span>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase mb-2">
+      <ModeCard className="border-green-500/30 bg-gradient-to-br from-green-500/5 to-emerald-500/5">
+        <div className="flex gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400">
+            <BookOpen className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400">
               Teaching Point
             </h3>
-            <p className="text-lg text-gray-900 dark:text-white leading-relaxed">
-              {currentPoint.teachingPoint}
-            </p>
+            <p className="text-lg leading-relaxed">{currentPoint.teachingPoint}</p>
           </div>
         </div>
-      </div>
+      </ModeCard>
 
-      {/* Question */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 mb-6 border-2 border-green-500 dark:border-green-700">
-        <div className="flex items-start gap-4">
-          <span className="text-4xl">❓</span>
+      {/* Question & Answer */}
+      <ModeCard className="border-primary/30">
+        <div className="flex gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <MessageSquare className="h-6 w-6" />
+          </div>
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase mb-2">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
               Your Turn
             </h3>
-            <p className="text-lg text-gray-900 dark:text-white font-semibold mb-6">
-              {currentPoint.question}
-            </p>
+            <p className="mb-4 text-lg font-medium">{currentPoint.question}</p>
 
             {!isAnswered ? (
               <>
@@ -369,65 +333,69 @@ function StudySessionView({
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
                   placeholder="Type your answer here..."
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 h-32 resize-none mb-4 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
+                  className="mb-4 h-32 w-full resize-none rounded-xl border border-border/50 bg-background/50 px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
-                {error && (
-                  <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-                )}
-                <button
-                  onClick={handleSubmitAnswer}
-                  disabled={isLoading || !userAnswer.trim()}
-                  className="w-full bg-green-600 dark:bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-700 dark:hover:bg-green-600 transition disabled:bg-gray-400 dark:disabled:bg-gray-600"
-                >
-                  {isLoading ? 'Evaluating...' : 'Submit Answer'}
-                </button>
+                {error && <ModeError message={error} />}
+                <ModeButton onClick={handleSubmitAnswer} disabled={isSubmitting || !userAnswer.trim()}>
+                  {isSubmitting ? (
+                    'Evaluating...'
+                  ) : (
+                    <>
+                      <Send className="mr-2 inline h-4 w-4" />
+                      Submit Answer
+                    </>
+                  )}
+                </ModeButton>
               </>
             ) : (
               <div className="space-y-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Your Answer:</h4>
-                  <p className="text-gray-700 dark:text-gray-300">{userAnswer}</p>
+                <div className="rounded-xl bg-blue-500/10 p-4">
+                  <h4 className="mb-2 font-semibold text-blue-600 dark:text-blue-400">Your Answer:</h4>
+                  <p className="text-muted-foreground">{userAnswer}</p>
                 </div>
 
-                <div className="p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-900 rounded-lg">
-                  <h4 className="font-semibold text-emerald-900 dark:text-emerald-300 mb-2">📝 Feedback:</h4>
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{feedback}</p>
+                <div className="rounded-xl bg-green-500/10 p-4">
+                  <h4 className="mb-2 flex items-center gap-2 font-semibold text-green-600 dark:text-green-400">
+                    <CheckCircle className="h-4 w-4" />
+                    Feedback
+                  </h4>
+                  <p className="whitespace-pre-wrap text-muted-foreground">{feedback}</p>
                 </div>
 
-                <button
-                  onClick={handleNext}
-                  className="w-full bg-green-600 dark:bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-700 dark:hover:bg-green-600 transition"
-                >
-                  {currentPointIndex < studyPoints.length - 1
-                    ? 'Next Question →'
-                    : 'Complete Study Session'}
-                </button>
+                <ModeButton onClick={handleNext}>
+                  {currentPointIndex < studyPoints.length - 1 ? (
+                    <>
+                      Next Question
+                      <ChevronRight className="ml-2 inline h-4 w-4" />
+                    </>
+                  ) : (
+                    'Complete Study Session'
+                  )}
+                </ModeButton>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </ModeCard>
 
-      {/* Progress and End Button */}
-      <div className="flex gap-4">
-        <button
-          onClick={handleEnd}
-          className="flex-1 bg-gray-500 dark:bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 dark:hover:bg-gray-600 transition"
-        >
-          End Session Early
-        </button>
-      </div>
+      {/* End early button */}
+      <ModeButton onClick={onEnd} variant="outline">
+        End Session Early
+      </ModeButton>
 
-      {/* Study Tips */}
-      <div className="mt-8 bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">💡 Study Tips</h3>
-        <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+      {/* Tips */}
+      <ModeCard>
+        <ModeSectionTitle
+          icon={<Lightbulb className="h-5 w-5 text-yellow-500" />}
+          title="Study Tips"
+        />
+        <ul className="space-y-2 text-sm text-muted-foreground">
           <li>• Think carefully before answering - there's no time limit</li>
           <li>• Try to explain your reasoning, not just the answer</li>
           <li>• Feedback will help you understand the concept better</li>
           <li>• Feel free to ask follow-up questions through your answers</li>
         </ul>
-      </div>
+      </ModeCard>
     </div>
   );
 }

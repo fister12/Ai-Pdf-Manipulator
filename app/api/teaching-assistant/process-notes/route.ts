@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const modelId = formData.get('modelId') as string;
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -20,8 +21,9 @@ export async function POST(request: NextRequest) {
     // Get the system prompt
     const systemPrompt = SYSTEM_PROMPTS.TEACHING_ASSISTANT_NOTES.prompt;
 
-    // Call Gemini API with the document
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Use provided model or fallback to default
+    const selectedModel = modelId || 'gemini-2.5-flash';
+    const model = genAI.getGenerativeModel({ model: selectedModel });
 
     const response = await model.generateContent([
       { text: systemPrompt },

@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const workflowId = formData.get('workflowId') as string;
+    const modelId = formData.get('modelId') as string;
 
     if (!file) {
       return NextResponse.json(
@@ -39,9 +40,9 @@ export async function POST(request: NextRequest) {
     // Get the appropriate system prompt
     const systemPrompt = getPrompt(workflowId as any);
 
-    // Call Gemini API with the PDF
-    // Using gemini-pro-vision which supports PDF and multimodal inputs
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Use provided model or fallback to default
+    const selectedModel = modelId || 'gemini-2.5-flash';
+    const model = genAI.getGenerativeModel({ model: selectedModel });
 
     const response = await model.generateContent([
       {
@@ -64,18 +65,18 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error processing PDF:', error);
-    
+
     // Handle rate limit errors specifically
     if (error?.status === 429) {
       return NextResponse.json(
-        { 
+        {
           error: 'API quota exceeded. Please wait a moment and try again, or check your Google Gemini API quota limits.',
           quotaExceeded: true
         },
         { status: 429 }
       );
     }
-    
+
     return NextResponse.json(
       { error: error?.message || 'Failed to process PDF. Please try again.' },
       { status: 500 }

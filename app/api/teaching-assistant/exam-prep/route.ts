@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { syllabus, pyqs } = await request.json();
+    const { syllabus, pyqs, modelId } = await request.json();
 
     if (!syllabus?.trim() && !pyqs?.trim()) {
       return NextResponse.json(
@@ -15,7 +15,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Use provided model or fallback to default
+    const selectedModel = modelId || 'gemini-2.5-flash';
+    const model = genAI.getGenerativeModel({ model: selectedModel });
 
     const userContent = `
 SYLLABUS:

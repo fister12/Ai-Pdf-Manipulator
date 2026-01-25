@@ -1,5 +1,5 @@
-import TeachingAssistantHub from "@/components/TeachingAssistantHub";
+import Home from "@/components/pages/Home";
 
-export default function Home() {
-  return <TeachingAssistantHub />;
+export default function Page() {
+  return <Home />;
 }

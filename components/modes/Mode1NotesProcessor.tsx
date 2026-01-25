@@ -1,6 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { FileText, Upload, BookOpen, Lightbulb, HelpCircle, Sparkles, FileCheck } from 'lucide-react';
+import {
+  ModeWrapper,
+  ModeCard,
+  ModeSectionTitle,
+  ModeButton,
+  ModeDropZone,
+  ModeLoading,
+  ModeError,
+  ModeTabs,
+} from './ModeWrapper';
 
 interface Mode1Props {
   onHome: () => void;
@@ -30,10 +41,8 @@ export default function Mode1NotesProcessor({ onHome }: Mode1Props) {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDrop = (files: FileList) => {
     setIsDragging(false);
-    const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
       if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
@@ -96,121 +105,120 @@ export default function Mode1NotesProcessor({ onHome }: Mode1Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-950 dark:to-slate-900 p-4 transition-colors duration-300">
-      <button
-        onClick={onHome}
-        className="fixed top-4 left-4 bg-gray-700 dark:bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-slate-600 transition"
-      >
-        ← Back to Home
-      </button>
-
-      <div className="max-w-4xl mx-auto mt-8">
-        {!result ? (
-          <>
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">📝 Notes Processor</h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
-                Convert your handwritten notes into organized, typed content
-              </p>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg dark:shadow-slate-900/50 p-8 mb-6">
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-lg p-12 text-center transition ${
-                  isDragging
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950'
-                    : 'border-gray-300 dark:border-slate-600 hover:border-blue-400'
-                }`}
-              >
-                <div className="text-6xl mb-4">📄</div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+    <ModeWrapper
+      title="Notes Processor"
+      description="Convert your handwritten notes into organized, typed content"
+      icon={<FileText className="h-6 w-6" />}
+      onBack={onHome}
+      headerColor="from-blue-500 to-blue-600"
+    >
+      {isProcessing ? (
+        <ModeLoading text="Processing your notes with AI..." />
+      ) : !result ? (
+        <div className="space-y-6">
+          {/* Drop Zone */}
+          <ModeCard>
+            <ModeDropZone
+              onDrop={handleDrop}
+              isDragging={isDragging}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+            >
+              <div className="flex flex-col items-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  <Upload className="h-8 w-8" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold">
                   Drag and drop your notes
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                <p className="mb-4 text-sm text-muted-foreground">
                   Upload a PDF or image (JPG, PNG) of your handwritten notes
                 </p>
-                <label className="inline-block">
+                <label className="cursor-pointer">
                   <input
                     type="file"
                     onChange={handleFileSelect}
                     accept=".pdf,image/jpeg,image/png"
                     className="hidden"
                   />
-                  <span className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition">
+                  <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-all hover:bg-primary/90">
+                    <Upload className="h-4 w-4" />
                     Choose File
                   </span>
                 </label>
               </div>
+            </ModeDropZone>
 
-              {selectedFile && (
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 dark:border dark:border-blue-900 rounded-lg">
-                  <p className="text-gray-700 dark:text-gray-200">
-                    <strong>Selected file:</strong> {selectedFile.name}
-                  </p>
-                  <button
-                    onClick={handleProcess}
-                    disabled={isProcessing}
-                    className="mt-4 w-full bg-blue-600 dark:bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition disabled:bg-gray-400"
-                  >
-                    {isProcessing ? 'Processing... Please wait' : 'Process Notes'}
-                  </button>
+            {selectedFile && (
+              <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/50">
+                <div className="flex items-center gap-3">
+                  <FileCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <div className="flex-1">
+                    <p className="font-medium">{selectedFile.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {(selectedFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
                 </div>
-              )}
-
-              {error && (
-                <div className="mt-4 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg">
-                  <p className="text-red-700 dark:text-red-200">{error}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">📋 What You'll Get</h3>
-                <ul className="space-y-3 text-gray-600 dark:text-gray-300">
-                  <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2">✓</span>
-                    <span>Typed and organized notes with clear structure</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2">✓</span>
-                    <span>Concise summary of the material</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2">✓</span>
-                    <span>Key concepts and definitions</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2">✓</span>
-                    <span>Important takeaways (5-10 points)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2">✓</span>
-                    <span>Study questions to test understanding</span>
-                  </li>
-                </ul>
+                <ModeButton onClick={handleProcess} className="mt-4">
+                  <Sparkles className="mr-2 inline h-4 w-4" />
+                  Process Notes with AI
+                </ModeButton>
               </div>
+            )}
 
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">💡 Tips for Best Results</h3>
-                <ul className="space-y-3 text-gray-600 dark:text-gray-300 text-sm">
-                  <li>• Upload clear, well-lit images of your notes</li>
-                  <li>• Ensure handwriting is legible</li>
-                  <li>• PDFs should be of reasonable quality</li>
-                  <li>• One document per upload for best organization</li>
-                  <li>• AI will flag unclear parts for you to review</li>
-                </ul>
-              </div>
-            </div>
-          </>
-        ) : (
-          <ProcessedNotesView result={result} onReset={() => setResult(null)} />
-        )}
-      </div>
-    </div>
+            {error && <ModeError message={error} />}
+          </ModeCard>
+
+          {/* Info Cards */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <ModeCard>
+              <ModeSectionTitle
+                icon={<BookOpen className="h-5 w-5 text-blue-500" />}
+                title="What You'll Get"
+              />
+              <ul className="space-y-3 text-sm">
+                {[
+                  'Typed and organized notes with clear structure',
+                  'Concise summary of the material',
+                  'Key concepts and definitions',
+                  'Important takeaways (5-10 points)',
+                  'Study questions to test understanding',
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                    <span className="text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </ModeCard>
+
+            <ModeCard>
+              <ModeSectionTitle
+                icon={<Lightbulb className="h-5 w-5 text-yellow-500" />}
+                title="Tips for Best Results"
+              />
+              <ul className="space-y-3 text-sm">
+                {[
+                  'Upload clear, well-lit images of your notes',
+                  'Ensure handwriting is legible',
+                  'PDFs should be of reasonable quality',
+                  'One document per upload for best organization',
+                  'AI will flag unclear parts for you to review',
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-yellow-500" />
+                    <span className="text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </ModeCard>
+          </div>
+        </div>
+      ) : (
+        <ProcessedNotesView result={result} onReset={() => setResult(null)} />
+      )}
+    </ModeWrapper>
   );
 }
 
@@ -221,46 +229,30 @@ function ProcessedNotesView({
   result: ProcessedResult;
   onReset: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<
-    'notes' | 'summary' | 'concepts' | 'takeaways' | 'questions'
-  >('notes');
+  const [activeTab, setActiveTab] = useState('notes');
+
+  const tabs = [
+    { id: 'notes', label: 'Typed Notes', icon: <FileText className="h-4 w-4" /> },
+    { id: 'summary', label: 'Summary', icon: <BookOpen className="h-4 w-4" /> },
+    { id: 'concepts', label: 'Key Concepts', icon: <Lightbulb className="h-4 w-4" /> },
+    { id: 'takeaways', label: 'Takeaways', icon: <Sparkles className="h-4 w-4" /> },
+    { id: 'questions', label: 'Study Questions', icon: <HelpCircle className="h-4 w-4" /> },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">✨ Your Processed Notes</h2>
-        <p className="text-gray-600 dark:text-gray-300">Here's your organized and summarized content</p>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold">✨ Your Processed Notes</h2>
+        <p className="mt-1 text-muted-foreground">Here's your organized and summarized content</p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex overflow-x-auto gap-2 mb-6 bg-white dark:bg-slate-800 rounded-lg shadow p-2">
-        {[
-          { id: 'notes', label: '📝 Typed Notes', icon: '📝' },
-          { id: 'summary', label: '📖 Summary', icon: '📖' },
-          { id: 'concepts', label: '🔑 Key Concepts', icon: '🔑' },
-          { id: 'takeaways', label: '💎 Takeaways', icon: '💎' },
-          { id: 'questions', label: '❓ Study Questions', icon: '❓' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition ${
-              activeTab === tab.id
-                ? 'bg-blue-600 dark:bg-blue-700 text-white'
-                : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-            }`}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
-      </div>
+      <ModeTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Content */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 mb-6">
+      <ModeCard className="min-h-[300px]">
         {activeTab === 'notes' && (
-          <div className="prose dark:prose-invert max-w-none">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Typed & Organized Notes</h3>
-            <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 font-mono text-sm bg-gray-50 dark:bg-slate-900 p-4 rounded">
+          <div>
+            <ModeSectionTitle title="Typed & Organized Notes" />
+            <div className="whitespace-pre-wrap rounded-xl bg-muted/50 p-4 font-mono text-sm">
               {result.typedNotes}
             </div>
           </div>
@@ -268,18 +260,18 @@ function ProcessedNotesView({
 
         {activeTab === 'summary' && (
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Summary</h3>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{result.summary}</p>
+            <ModeSectionTitle title="Summary" />
+            <p className="leading-relaxed text-muted-foreground">{result.summary}</p>
           </div>
         )}
 
         {activeTab === 'concepts' && (
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Key Concepts</h3>
+            <ModeSectionTitle title="Key Concepts" />
             <ul className="space-y-2">
               {result.keyConcepts.map((concept, idx) => (
-                <li key={idx} className="flex items-start text-gray-700 dark:text-gray-300">
-                  <span className="text-blue-600 dark:text-blue-400 mr-3 font-bold">▸</span>
+                <li key={idx} className="flex items-start gap-3">
+                  <span className="mt-1.5 h-2 w-2 rounded-full bg-blue-500" />
                   <span>{concept}</span>
                 </li>
               ))}
@@ -289,11 +281,13 @@ function ProcessedNotesView({
 
         {activeTab === 'takeaways' && (
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Key Takeaways</h3>
+            <ModeSectionTitle title="Key Takeaways" />
             <ol className="space-y-3">
               {result.takeaways.map((takeaway, idx) => (
-                <li key={idx} className="flex gap-3 text-gray-700 dark:text-gray-300">
-                  <span className="font-bold text-blue-600 dark:text-blue-400 min-w-fit">{idx + 1}.</span>
+                <li key={idx} className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {idx + 1}
+                  </span>
                   <span>{takeaway}</span>
                 </li>
               ))}
@@ -303,25 +297,22 @@ function ProcessedNotesView({
 
         {activeTab === 'questions' && (
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Study Questions</h3>
+            <ModeSectionTitle title="Study Questions" />
             <ul className="space-y-3">
               {result.questionsToStudy.map((question, idx) => (
-                <li key={idx} className="flex items-start text-gray-700 dark:text-gray-300">
-                  <span className="text-green-600 dark:text-green-400 mr-3 font-bold">Q{idx + 1}:</span>
+                <li key={idx} className="flex items-start gap-3 rounded-xl bg-muted/50 p-3">
+                  <span className="font-bold text-green-600 dark:text-green-400">Q{idx + 1}:</span>
                   <span>{question}</span>
                 </li>
               ))}
             </ul>
           </div>
         )}
-      </div>
+      </ModeCard>
 
-      <button
-        onClick={onReset}
-        className="w-full bg-blue-600 dark:bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition"
-      >
+      <ModeButton onClick={onReset} variant="outline">
         Process Another Document
-      </button>
+      </ModeButton>
     </div>
   );
 }

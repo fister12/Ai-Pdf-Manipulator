@@ -5,13 +5,15 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { topic, material } = await request.json();
+    const { topic, material, modelId } = await request.json();
 
     if (!topic || topic.trim().length === 0) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Use provided model or fallback to default
+    const selectedModel = modelId || 'gemini-2.5-flash';
+    const model = genAI.getGenerativeModel({ model: selectedModel });
 
     const systemPrompt = `You are a Socratic educator teaching a student about "${topic}". 
 Your response must start with the exact format below. Do not add any other text before it:

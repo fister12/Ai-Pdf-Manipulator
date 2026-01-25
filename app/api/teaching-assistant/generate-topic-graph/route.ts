@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { topic, description, flashcards } = await request.json();
+    const { topic, description, flashcards, modelId } = await request.json();
 
     if (!topic || topic.trim().length === 0) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
@@ -14,7 +14,9 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = SYSTEM_PROMPTS.TEACHING_ASSISTANT_TOPIC_GRAPH.prompt;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    // Use provided model or fallback to default
+    const selectedModel = modelId || 'gemini-2.0-flash';
+    const model = genAI.getGenerativeModel({ model: selectedModel });
 
     // Create a comprehensive prompt for visualization
     const flashcardContext = flashcards && flashcards.length > 0

@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const workflowId = formData.get('workflowId') as string;
+    const modelId = formData.get('modelId') as string;
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -36,8 +37,9 @@ export async function POST(request: NextRequest) {
     // Get the appropriate system prompt
     const systemPrompt = getPrompt(workflowId as any);
 
-    // Call Gemini API with the PDF to extract/convert handwriting
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Use provided model or fallback to default
+    const selectedModel = modelId || 'gemini-2.5-flash';
+    const model = genAI.getGenerativeModel({ model: selectedModel });
 
     const response = await model.generateContent([
       { text: systemPrompt },
