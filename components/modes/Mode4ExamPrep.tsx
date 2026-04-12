@@ -243,7 +243,7 @@ function ExamPrepResults({ result, onReset }: { result: ExamPrepResult; onReset:
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="text-center">
         <h2 className="text-2xl font-bold">🎯 Your Exam Prep Strategy</h2>
         <p className="mt-1 text-muted-foreground">Personalized study priorities based on your syllabus and past questions</p>
@@ -252,7 +252,7 @@ function ExamPrepResults({ result, onReset }: { result: ExamPrepResult; onReset:
       <ModeTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === 'high' && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-300">
           <div className="text-center">
             <h3 className="text-xl font-bold text-red-500">🔴 High Priority Topics</h3>
             <p className="text-sm text-muted-foreground">These topics appear frequently in past papers. Study these first!</p>
@@ -262,7 +262,7 @@ function ExamPrepResults({ result, onReset }: { result: ExamPrepResult; onReset:
       )}
 
       {activeTab === 'medium' && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-300">
           <div className="text-center">
             <h3 className="text-xl font-bold text-yellow-500">🟡 Medium Priority Topics</h3>
             <p className="text-sm text-muted-foreground">These topics appear occasionally. Study after high priority.</p>
@@ -272,7 +272,7 @@ function ExamPrepResults({ result, onReset }: { result: ExamPrepResult; onReset:
       )}
 
       {activeTab === 'low' && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-300">
           <div className="text-center">
             <h3 className="text-xl font-bold text-green-500">🟢 Low Priority Topics</h3>
             <p className="text-sm text-muted-foreground">These are in syllabus but rarely appear. Study if you have time.</p>
@@ -288,7 +288,7 @@ function ExamPrepResults({ result, onReset }: { result: ExamPrepResult; onReset:
       )}
 
       {activeTab === 'strategy' && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
           <ModeCard>
             <ModeSectionTitle
               icon={<Clock className="h-5 w-5 text-purple-500" />}

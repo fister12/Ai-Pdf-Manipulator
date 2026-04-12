@@ -32,20 +32,17 @@ export function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
     return (
         <div
             className={cn(
-                "group relative flex gap-3 px-4 py-4 transition-colors",
-                isAssistant
-                    ? "bg-muted/30"
-                    : "bg-transparent"
+                "group relative flex gap-3 px-4 py-4 transition-colors bg-transparent"
             )}
         >
             {/* Avatar */}
             <div className="flex-shrink-0">
                 {isAssistant ? (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
+                    <div className="flex h-8 w-8 items-center justify-center text-primary">
                         <Bot className="h-5 w-5" />
                     </div>
                 ) : (
-                    <Avatar className="h-8 w-8 shadow-sm">
+                    <Avatar className="h-8 w-8">
                         <AvatarImage src={userAvatar} />
                         <AvatarFallback className="bg-secondary text-secondary-foreground">
                             <User className="h-4 w-4" />

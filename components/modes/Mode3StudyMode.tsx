@@ -285,7 +285,7 @@ function StudySessionView({
   const progress = ((currentPointIndex + 1) / studyPoints.length) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header with progress */}
       <div className="text-center">
         <h2 className="text-2xl font-bold">Study Session: {topic}</h2>
@@ -348,7 +348,7 @@ function StudySessionView({
                 </ModeButton>
               </>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
                 <div className="rounded-xl bg-blue-500/10 p-4">
                   <h4 className="mb-2 font-semibold text-blue-600 dark:text-blue-400">Your Answer:</h4>
                   <p className="text-muted-foreground">{userAnswer}</p>

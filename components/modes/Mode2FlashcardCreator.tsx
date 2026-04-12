@@ -207,7 +207,7 @@ function FlashcardsView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="text-center">
         <h2 className="text-2xl font-bold">{result.topic} - Flashcards</h2>
         <p className="mt-1 text-muted-foreground">
@@ -249,7 +249,7 @@ function FlashcardsView({
         <ModeCard className="p-0 overflow-hidden">
           <div
             onClick={() => setIsFlipped(!isFlipped)}
-            className={`relative h-64 cursor-pointer p-8 transition-all duration-300 ${isFlipped
+            className={`relative h-64 cursor-pointer p-8 transition-all duration-500 hover:scale-[1.02] ${isFlipped
                 ? 'bg-gradient-to-br from-purple-500 to-purple-700'
                 : 'bg-gradient-to-br from-pink-500 to-rose-500'
               }`}

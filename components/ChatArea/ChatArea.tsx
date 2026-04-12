@@ -23,7 +23,7 @@ export function ChatArea({ messages, isLoading, userAvatar }: ChatAreaProps) {
     const isEmpty = messages.length === 0;
 
     return (
-        <div className="relative flex flex-1 flex-col overflow-hidden bg-gradient-to-b from-background to-muted/20">
+        <div className="relative flex flex-1 flex-col overflow-hidden bg-background">
             <ScrollArea ref={scrollRef} className="flex-1">
                 {isEmpty ? (
                     // Empty state - Welcome screen
@@ -85,8 +85,6 @@ export function ChatArea({ messages, isLoading, userAvatar }: ChatAreaProps) {
                 )}
             </ScrollArea>
 
-            {/* Gradient overlay at bottom for visual polish */}
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent" />
         </div>
     );
 }
@@ -95,20 +93,18 @@ export function ChatArea({ messages, isLoading, userAvatar }: ChatAreaProps) {
 function QuickAction({
     icon,
     title,
-    description,
 }: {
     icon: React.ReactNode;
     title: string;
     description: string;
 }) {
     return (
-        <div className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border/50 bg-card/50 p-4 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+        <div className="group flex cursor-pointer items-center gap-3 py-2 opacity-70 transition-opacity hover:opacity-100">
+            <div className="flex text-primary">
                 {icon}
             </div>
             <div>
-                <h3 className="font-medium">{title}</h3>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <h3 className="text-sm font-medium">{title}</h3>
             </div>
         </div>
     );

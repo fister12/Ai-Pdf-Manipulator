@@ -240,7 +240,7 @@ function ProcessedNotesView({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="text-center">
         <h2 className="text-2xl font-bold">✨ Your Processed Notes</h2>
         <p className="mt-1 text-muted-foreground">Here's your organized and summarized content</p>
@@ -250,7 +250,7 @@ function ProcessedNotesView({
 
       <ModeCard className="min-h-[300px]">
         {activeTab === 'notes' && (
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300">
             <ModeSectionTitle title="Typed & Organized Notes" />
             <div className="whitespace-pre-wrap rounded-xl bg-muted/50 p-4 font-mono text-sm">
               {result.typedNotes}
@@ -259,14 +259,14 @@ function ProcessedNotesView({
         )}
 
         {activeTab === 'summary' && (
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300">
             <ModeSectionTitle title="Summary" />
             <p className="leading-relaxed text-muted-foreground">{result.summary}</p>
           </div>
         )}
 
         {activeTab === 'concepts' && (
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300">
             <ModeSectionTitle title="Key Concepts" />
             <ul className="space-y-2">
               {result.keyConcepts.map((concept, idx) => (
@@ -280,7 +280,7 @@ function ProcessedNotesView({
         )}
 
         {activeTab === 'takeaways' && (
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300">
             <ModeSectionTitle title="Key Takeaways" />
             <ol className="space-y-3">
               {result.takeaways.map((takeaway, idx) => (
@@ -296,7 +296,7 @@ function ProcessedNotesView({
         )}
 
         {activeTab === 'questions' && (
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300">
             <ModeSectionTitle title="Study Questions" />
             <ul className="space-y-3">
               {result.questionsToStudy.map((question, idx) => (

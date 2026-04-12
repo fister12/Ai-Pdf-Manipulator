@@ -22,7 +22,7 @@ export function ModeWrapper({
     headerColor = "from-primary to-primary/70",
 }: ModeWrapperProps) {
     return (
-        <div className="flex flex-1 flex-col overflow-hidden bg-gradient-to-b from-background to-muted/20">
+        <div className="flex flex-1 flex-col overflow-hidden bg-background animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="mx-auto max-w-4xl px-4 py-6">
@@ -65,7 +65,7 @@ interface ModeCardProps {
 
 export function ModeCard({ children, className = "" }: ModeCardProps) {
     return (
-        <div className={`rounded-xl border border-border/50 bg-card/50 p-6 shadow-sm backdrop-blur-sm ${className}`}>
+        <div className={`rounded-xl border border-border/50 bg-card p-6 shadow-sm transition-all duration-300 animate-in fade-in zoom-in-95 ${className}`}>
             {children}
         </div>
     );
@@ -160,9 +160,9 @@ export function ModeDropZone({
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={handleDrop}
-            className={`rounded-xl border-2 border-dashed p-8 text-center transition-all duration-200 ${isDragging
-                ? "border-primary bg-primary/5 scale-[1.02]"
-                : "border-border/50 hover:border-primary/50 hover:bg-muted/30"
+            className={`rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragging
+                ? "border-primary bg-primary/10 scale-105 shadow-md"
+                : "border-border/50 hover:border-primary/50 hover:bg-muted/30 hover:scale-[1.02]"
                 }`}
         >
             {children}
@@ -263,7 +263,7 @@ interface ModeTabsProps {
 
 export function ModeTabs({ tabs, activeTab, onTabChange }: ModeTabsProps) {
     return (
-        <div className="flex gap-2 overflow-x-auto rounded-xl border border-border/50 bg-muted/30 p-1.5">
+        <div className="flex gap-2 overflow-x-auto rounded-xl border border-border/50 bg-muted/30 p-1.5 transition-all">
             {tabs.map((tab) => (
                 <button
                     key={tab.id}

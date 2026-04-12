@@ -39,15 +39,12 @@ export function Topbar({
     };
 
     return (
-        <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/40 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-transparent px-4">
             {/* Left section - Hamburger menu */}
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
                 <div className="hidden items-center gap-2 sm:flex">
-                    <div className="h-6 w-px bg-border" />
-                    <h1 className="text-lg font-semibold tracking-tight">
-                        AI Study Helper
-                    </h1>
+                    {/* Minimalist: Title removed */}
                 </div>
             </div>
 

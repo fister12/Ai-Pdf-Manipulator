@@ -108,7 +108,7 @@ export function InputBar({
     };
 
     return (
-        <div className="sticky bottom-0 z-30 border-t border-border/40 bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="sticky bottom-0 z-30 bg-transparent px-4 pb-4 pt-2">
             {/* Attached files preview */}
             {attachedFiles.length > 0 && (
                 <div className="mb-3 flex flex-wrap gap-2">
@@ -135,7 +135,7 @@ export function InputBar({
             )}
 
             <div className="mx-auto max-w-4xl">
-                <div className="relative flex items-end gap-2 rounded-2xl border border-border/50 bg-muted/30 p-2 shadow-sm transition-all focus-within:border-primary/50 focus-within:shadow-md">
+                <div className="relative flex items-end gap-2 border-t border-border/20 bg-background py-2 transition-all">
                     {/* Hidden file input */}
                     <input
                         ref={fileInputRef}
@@ -223,11 +223,6 @@ export function InputBar({
                     </Button>
                 </div>
 
-                {/* Helper text */}
-                <p className="mt-2 text-center text-xs text-muted-foreground">
-                    Press <kbd className="rounded bg-muted px-1 py-0.5 font-mono">Enter</kbd> to send,{" "}
-                    <kbd className="rounded bg-muted px-1 py-0.5 font-mono">Shift + Enter</kbd> for new line
-                </p>
             </div>
         </div>
     );

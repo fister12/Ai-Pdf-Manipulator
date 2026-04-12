@@ -121,7 +121,7 @@ export default function Home() {
     };
 
     return (
-        <SidebarProvider defaultOpen={true}>
+        <SidebarProvider defaultOpen={false}>
             {/* Hidden file input for floating button */}
             <input
                 ref={fileInputRef}
