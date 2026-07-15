@@ -20,6 +20,17 @@ export function ChatArea({ userAvatar }: ChatAreaProps) {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isLoading]);
 
+    // Handle instant scrolling during text streaming/typing
+    useEffect(() => {
+        const handleTypingScroll = () => {
+            bottomRef.current?.scrollIntoView({ behavior: "auto" });
+        };
+        window.addEventListener('assistant-typing', handleTypingScroll);
+        return () => {
+            window.removeEventListener('assistant-typing', handleTypingScroll);
+        };
+    }, []);
+
     const isEmpty = messages.length === 0;
 
     return (

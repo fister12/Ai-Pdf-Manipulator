@@ -1,3 +1,5 @@
+"use client";
+
 import Mode2FlashcardCreator from "@/components/modes/Mode2FlashcardCreator";
 
 export default function FlashcardsPage() {

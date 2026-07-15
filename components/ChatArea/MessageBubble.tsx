@@ -1,10 +1,11 @@
 "use client";
 
 import { Bot, User, Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useStudySessionContext } from "@/lib/context/StudySessionContext";
 
 export interface Message {
     id: string;
@@ -21,7 +22,55 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
     const [copied, setCopied] = useState(false);
+    const { streamingSpeed } = useStudySessionContext();
     const isAssistant = message.role === "assistant";
+
+    // Determine if this message was recently created (within last 5 seconds)
+    const isNew = (() => {
+        if (!isAssistant || message.id === "loading") return false;
+        const match = message.id.match(/^assistant-(\d+)$/);
+        if (!match) return false;
+        const timestamp = parseInt(match[1], 10);
+        return Date.now() - timestamp < 5000;
+    })();
+
+    const [displayedContent, setDisplayedContent] = useState(
+        isAssistant && isNew ? "" : message.content
+    );
+
+    useEffect(() => {
+        if (isAssistant && isNew && displayedContent.length < message.content.length) {
+            const delay = streamingSpeed === 'slow' ? 50 
+                          : streamingSpeed === 'medium' ? 20 
+                          : streamingSpeed === 'fast' ? 5 
+                          : 0; // 'instant'
+
+            if (delay === 0) {
+                setDisplayedContent(message.content);
+                return;
+            }
+
+            const interval = setInterval(() => {
+                setDisplayedContent((prev) => {
+                    const charsToAdd = streamingSpeed === 'fast' ? 3 : 1;
+                    const nextLength = prev.length + charsToAdd;
+                    
+                    // Request auto-scroll during typing
+                    window.dispatchEvent(new CustomEvent('assistant-typing'));
+
+                    if (nextLength >= message.content.length) {
+                        clearInterval(interval);
+                        return message.content;
+                    }
+                    return message.content.slice(0, nextLength);
+                });
+            }, delay);
+
+            return () => clearInterval(interval);
+        } else {
+            setDisplayedContent(message.content);
+        }
+    }, [message.content, isAssistant, isNew, streamingSpeed]);
 
     const handleCopy = async () => {
         await navigator.clipboard.writeText(message.content);
@@ -75,7 +124,7 @@ export function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
                         </div>
                     ) : (
                         <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                            {message.content}
+                            {displayedContent}
                         </div>
                     )}
                 </div>

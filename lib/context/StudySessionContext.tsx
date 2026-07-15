@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext } from 'react';
-import { useStudySessions, defaultModels } from '@/hooks/useStudySessions';
+import { useStudySessions, defaultModels, type StreamingSpeed } from '@/hooks/useStudySessions';
 import type { ChatSession } from "@/components/Sidebar/ChatHistory";
 import type { AIModel } from "@/components/Sidebar/ModelSelector";
 
@@ -10,10 +10,12 @@ interface StudySessionContextType {
     activeSessionId: string | undefined;
     selectedModelId: string;
     models: AIModel[];
+    streamingSpeed: StreamingSpeed;
     selectSession: (id: string) => void;
     deleteSession: (id: string) => void;
     createNewSession: () => void;
     selectModel: (id: string) => void;
+    selectStreamingSpeed: (speed: StreamingSpeed) => void;
 }
 
 const StudySessionContext = createContext<StudySessionContextType | undefined>(undefined);

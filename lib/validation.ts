@@ -91,7 +91,7 @@ export const validateRequest = async <T extends z.ZodTypeAny>(
   const result = schema.safeParse(Object.fromEntries(formData));
   
   if (!result.success) {
-    return { success: false, error: result.error.errors[0].message } as const;
+    return { success: false, error: result.error.issues[0]?.message || 'Validation error' } as const;
   }
   
   return { success: true, data: result.data } as const;

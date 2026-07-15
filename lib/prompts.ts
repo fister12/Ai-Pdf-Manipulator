@@ -331,12 +331,14 @@ ANTI-HALLUCINATION RULES:
 
 export type WorkflowId = keyof typeof SYSTEM_PROMPTS;
 
-export function getPrompt(workflowId: WorkflowId) {
-  return SYSTEM_PROMPTS[workflowId]?.prompt || SYSTEM_PROMPTS.TEXT_EXTRACTION.prompt;
+export function getPrompt(workflowId: string) {
+  const key = workflowId.toUpperCase() as WorkflowId;
+  return SYSTEM_PROMPTS[key]?.prompt || SYSTEM_PROMPTS.TEXT_EXTRACTION.prompt;
 }
 
-export function getWorkflowName(workflowId: WorkflowId) {
-  return SYSTEM_PROMPTS[workflowId]?.name || 'Extract Text';
+export function getWorkflowName(workflowId: string) {
+  const key = workflowId.toUpperCase() as WorkflowId;
+  return SYSTEM_PROMPTS[key]?.name || 'Extract Text';
 }
 
 export function getAllWorkflows() {

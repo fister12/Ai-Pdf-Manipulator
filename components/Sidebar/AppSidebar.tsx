@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { GraduationCap, Plus, FileText, Layers, Brain, Target, MessageSquare } from "lucide-react";
+import { GraduationCap, Plus, FileText, Layers, Brain, Target, MessageSquare, Sliders, Turtle, Clock, Rabbit, Zap } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -24,6 +24,7 @@ import { FilesList, type UploadedFile } from "./FilesList";
 import { ModelSelector, type AIModel } from "./ModelSelector";
 import { useStudySessionContext } from "@/lib/context/StudySessionContext";
 import { useFileContext } from "@/lib/context/FileContext";
+import { cn } from "@/lib/utils";
 
 interface StudyMode {
     id: string;
@@ -89,7 +90,9 @@ export function AppSidebar(props: AppSidebarProps) {
         createNewSession: onNewSession, 
         models, 
         selectedModelId, 
-        selectModel: onSelectModel 
+        selectModel: onSelectModel,
+        streamingSpeed,
+        selectStreamingSpeed
     } = useStudySessionContext();
 
     const { files, removeFile: onDeleteFile } = useFileContext();
@@ -180,13 +183,57 @@ export function AppSidebar(props: AppSidebarProps) {
 
                 <SidebarSeparator />
 
-                {/* Model Selector - only show in chat mode */}
+                {/* Model Selector & Streaming Settings - only show in chat mode */}
                 {pathname === "/" && (
-                    <ModelSelector
-                        models={models}
-                        selectedModelId={selectedModelId}
-                        onSelectModel={onSelectModel}
-                    />
+                    <>
+                        <ModelSelector
+                            models={models}
+                            selectedModelId={selectedModelId}
+                            onSelectModel={onSelectModel}
+                        />
+                        <SidebarSeparator />
+                        <SidebarGroup>
+                            <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <Sliders className="h-4 w-4 text-primary" />
+                                Streaming Speed
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent className="px-2 py-1.5">
+                                <div className="grid grid-cols-4 gap-1 rounded-xl bg-muted/60 p-1 border border-border/10">
+                                    {(['slow', 'medium', 'fast', 'instant'] as const).map((speed) => {
+                                        const isActive = streamingSpeed === speed;
+                                        const speedLabels = {
+                                            slow: "Slow",
+                                            medium: "Med",
+                                            fast: "Fast",
+                                            instant: "Inst"
+                                        };
+                                        const speedIcons = {
+                                            slow: <Turtle className="h-3.5 w-3.5" />,
+                                            medium: <Clock className="h-3.5 w-3.5" />,
+                                            fast: <Rabbit className="h-3.5 w-3.5" />,
+                                            instant: <Zap className="h-3.5 w-3.5" />
+                                        };
+                                        return (
+                                            <button
+                                                key={speed}
+                                                onClick={() => selectStreamingSpeed(speed)}
+                                                className={cn(
+                                                    "flex flex-col items-center justify-center gap-1 rounded-lg py-1.5 text-[10px] font-medium transition-all border border-transparent cursor-pointer",
+                                                    isActive 
+                                                        ? "bg-background text-primary shadow-sm border-border/20" 
+                                                        : "text-muted-foreground hover:bg-background/40 hover:text-foreground"
+                                                )}
+                                                title={`${speedLabels[speed]} Speed`}
+                                            >
+                                                {speedIcons[speed]}
+                                                <span>{speedLabels[speed]}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </>
                 )}
             </SidebarContent>
 

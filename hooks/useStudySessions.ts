@@ -54,21 +54,26 @@ const defaultSessions: ChatSession[] = [
     },
 ];
 
+export type StreamingSpeed = 'slow' | 'medium' | 'fast' | 'instant';
+
 interface UseStudySessionsReturn {
     sessions: ChatSession[];
     activeSessionId: string | undefined;
     selectedModelId: string;
     models: AIModel[];
+    streamingSpeed: StreamingSpeed;
     selectSession: (id: string) => void;
     deleteSession: (id: string) => void;
     createNewSession: () => void;
     selectModel: (id: string) => void;
+    selectStreamingSpeed: (speed: StreamingSpeed) => void;
 }
 
 export function useStudySessions(): UseStudySessionsReturn {
     const [sessions, setSessions] = useState<ChatSession[]>(defaultSessions);
     const [activeSessionId, setActiveSessionId] = useState<string | undefined>();
     const [selectedModelId, setSelectedModelId] = useState("gemini-2.5-flash");
+    const [streamingSpeed, setStreamingSpeed] = useState<StreamingSpeed>("medium");
 
     const selectSession = useCallback((id: string) => {
         setActiveSessionId(id);
@@ -99,14 +104,21 @@ export function useStudySessions(): UseStudySessionsReturn {
         console.log("Selected model:", id);
     }, []);
 
+    const selectStreamingSpeed = useCallback((speed: StreamingSpeed) => {
+        setStreamingSpeed(speed);
+        console.log("Selected streaming speed:", speed);
+    }, []);
+
     return {
         sessions,
         activeSessionId,
         selectedModelId,
         models: defaultModels,
+        streamingSpeed,
         selectSession,
         deleteSession,
         createNewSession,
         selectModel,
+        selectStreamingSpeed,
     };
 }
