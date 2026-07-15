@@ -21,6 +21,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useChatContext } from "@/lib/context/ChatContext";
+import { useFileContext } from "@/lib/context/FileContext";
+import { useStudySessionContext } from "@/lib/context/StudySessionContext";
 
 export interface AIModel {
     id: string;
@@ -29,12 +32,6 @@ export interface AIModel {
 }
 
 interface InputBarProps {
-    onSendMessage: (message: string) => void;
-    onUploadFile: (files: FileList) => void;
-    onSelectModel: (modelId: string) => void;
-    models: AIModel[];
-    selectedModelId: string;
-    isLoading?: boolean;
     disabled?: boolean;
 }
 
@@ -46,14 +43,12 @@ const modelIcons = {
 };
 
 export function InputBar({
-    onSendMessage,
-    onUploadFile,
-    onSelectModel,
-    models,
-    selectedModelId,
-    isLoading = false,
     disabled = false,
 }: InputBarProps) {
+    const { sendMessage: onSendMessage, isLoading } = useChatContext();
+    const { uploadFiles: onUploadFile } = useFileContext();
+    const { models, selectedModelId, selectModel: onSelectModel } = useStudySessionContext();
+
     const [message, setMessage] = useState("");
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);

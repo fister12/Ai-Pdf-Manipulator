@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import { GraduationCap, Plus, FileText, Layers, Brain, Target, MessageSquare } from "lucide-react";
 import {
     Sidebar,
@@ -19,11 +22,12 @@ import { Button } from "@/components/ui/button";
 import { ChatHistory, type ChatSession } from "./ChatHistory";
 import { FilesList, type UploadedFile } from "./FilesList";
 import { ModelSelector, type AIModel } from "./ModelSelector";
-
-type ModeType = "chat" | "notes" | "flashcards" | "study" | "exam";
+import { useStudySessionContext } from "@/lib/context/StudySessionContext";
+import { useFileContext } from "@/lib/context/FileContext";
 
 interface StudyMode {
-    id: ModeType;
+    id: string;
+    href: string;
     name: string;
     description: string;
     icon: React.ReactNode;
@@ -33,6 +37,7 @@ interface StudyMode {
 const studyModes: StudyMode[] = [
     {
         id: "chat",
+        href: "/",
         name: "AI Chat",
         description: "Ask anything",
         icon: <MessageSquare className="h-4 w-4" />,
@@ -40,6 +45,7 @@ const studyModes: StudyMode[] = [
     },
     {
         id: "notes",
+        href: "/notes",
         name: "Notes Processor",
         description: "Digitize handwritten notes",
         icon: <FileText className="h-4 w-4" />,
@@ -47,6 +53,7 @@ const studyModes: StudyMode[] = [
     },
     {
         id: "flashcards",
+        href: "/flashcards",
         name: "Flashcard Creator",
         description: "Generate flashcards",
         icon: <Layers className="h-4 w-4" />,
@@ -54,6 +61,7 @@ const studyModes: StudyMode[] = [
     },
     {
         id: "study",
+        href: "/study",
         name: "Study Mode",
         description: "Interactive learning",
         icon: <Brain className="h-4 w-4" />,
@@ -61,6 +69,7 @@ const studyModes: StudyMode[] = [
     },
     {
         id: "exam",
+        href: "/exam",
         name: "Exam Prep",
         description: "Smart prioritization",
         icon: <Target className="h-4 w-4" />,
@@ -68,37 +77,24 @@ const studyModes: StudyMode[] = [
     },
 ];
 
-interface AppSidebarProps {
-    sessions: ChatSession[];
-    activeSessionId?: string;
-    onSelectSession: (id: string) => void;
-    onDeleteSession?: (id: string) => void;
-    onNewSession: () => void;
-    files: UploadedFile[];
-    onSelectFile: (id: string) => void;
-    onDeleteFile?: (id: string) => void;
-    models: AIModel[];
-    selectedModelId: string;
-    onSelectModel: (id: string) => void;
-    currentMode: ModeType;
-    onModeChange: (mode: ModeType) => void;
-}
+interface AppSidebarProps {}
 
-export function AppSidebar({
-    sessions,
-    activeSessionId,
-    onSelectSession,
-    onDeleteSession,
-    onNewSession,
-    files,
-    onSelectFile,
-    onDeleteFile,
-    models,
-    selectedModelId,
-    onSelectModel,
-    currentMode,
-    onModeChange,
-}: AppSidebarProps) {
+export function AppSidebar(props: AppSidebarProps) {
+    const pathname = usePathname();
+    const { 
+        sessions, 
+        activeSessionId, 
+        selectSession: onSelectSession, 
+        deleteSession: onDeleteSession, 
+        createNewSession: onNewSession, 
+        models, 
+        selectedModelId, 
+        selectModel: onSelectModel 
+    } = useStudySessionContext();
+
+    const { files, removeFile: onDeleteFile } = useFileContext();
+    const onSelectFile = (id: string) => console.log("Selected file:", id);
+
     return (
         <Sidebar variant="sidebar" collapsible="offcanvas" className="border-r border-sidebar-border">
             <SidebarHeader className="border-b border-sidebar-border">
@@ -128,18 +124,20 @@ export function AppSidebar({
                             {studyModes.map((mode) => (
                                 <SidebarMenuItem key={mode.id}>
                                     <SidebarMenuButton
-                                        isActive={currentMode === mode.id}
-                                        onClick={() => onModeChange(mode.id)}
+                                        asChild
+                                        isActive={pathname === mode.href}
                                         tooltip={mode.description}
                                         className="group/item"
                                     >
-                                        <span className={mode.color}>{mode.icon}</span>
-                                        <div className="flex flex-1 flex-col overflow-hidden">
-                                            <span className="truncate font-medium">{mode.name}</span>
-                                            <span className="truncate text-xs text-muted-foreground">
-                                                {mode.description}
-                                            </span>
-                                        </div>
+                                        <Link href={mode.href}>
+                                            <span className={mode.color}>{mode.icon}</span>
+                                            <div className="flex flex-1 flex-col overflow-hidden">
+                                                <span className="truncate font-medium">{mode.name}</span>
+                                                <span className="truncate text-xs text-muted-foreground">
+                                                    {mode.description}
+                                                </span>
+                                            </div>
+                                        </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
@@ -183,7 +181,7 @@ export function AppSidebar({
                 <SidebarSeparator />
 
                 {/* Model Selector - only show in chat mode */}
-                {currentMode === "chat" && (
+                {pathname === "/" && (
                     <ModelSelector
                         models={models}
                         selectedModelId={selectedModelId}

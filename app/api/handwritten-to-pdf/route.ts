@@ -2,104 +2,89 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import jsPDF from 'jspdf';
 import { getPrompt } from '@/lib/prompts';
+import { fileUploadSchema, validateRequest } from '@/lib/validation';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const workflowId = formData.get('workflowId') as string;
-    const modelId = formData.get('modelId') as string;
+try {
+const validation = await validateRequest(request, fileUploadSchema);
+if (!validation.success) {
+return NextResponse.json({ error: validation.error }, { status: 400 });
+}
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
+const { file, workflowId, modelId } = validation.data;
 
-    // Early size check to return a JSON error before attempting heavy processing.
-    // Note: some platforms reject large requests before reaching this handler.
-    const MAX_BYTES = 8 * 1024 * 1024; // 8MB
-    // The File API exposes size in browsers; handle when available
-    // @ts-ignore
-    const fileSize = (file as any).size;
-    if (fileSize && fileSize > MAX_BYTES) {
-      return NextResponse.json({ error: 'File too large. Max 8MB allowed.' }, { status: 413 });
-    }
+// Convert file to base64
+const bytes = await file.arrayBuffer();
+const base64 = Buffer.from(bytes).toString('base64');
 
-    if (!workflowId) {
-      return NextResponse.json({ error: 'No workflow specified' }, { status: 400 });
-    }
+// Get the appropriate system prompt
+const systemPrompt = getPrompt(workflowId);
 
-    // Convert file to base64
-    const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString('base64');
+// Use provided model or fallback to default
+const selectedModel = modelId || 'gemini-2.5-flash';
+const model = genAI.getGenerativeModel({ model: selectedModel });
 
-    // Get the appropriate system prompt
-    const systemPrompt = getPrompt(workflowId as any);
+const response = await model.generateContent([
+{ text: systemPrompt },
+{
+inlineData: {
+mimeType: 'application/pdf',
+data: base64,
+},
+},
+]);
 
-    // Use provided model or fallback to default
-    const selectedModel = modelId || 'gemini-2.5-flash';
-    const model = genAI.getGenerativeModel({ model: selectedModel });
+const processedText = response.response.text();
 
-    const response = await model.generateContent([
-      { text: systemPrompt },
-      {
-        inlineData: {
-          mimeType: 'application/pdf',
-          data: base64,
-        },
-      },
-    ]);
+// Create PDF from processed text
+const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+doc.setFont('helvetica');
+doc.setFontSize(12);
 
-    const processedText = response.response.text();
+const title = workflowId || 'Processed Notes';
+if (title) {
+doc.setFontSize(16);
+doc.setFont('helvetica', 'bold');
+doc.text(title, 20, 20);
+doc.setFontSize(12);
+doc.setFont('helvetica', 'normal');
+}
 
-    // Create PDF from processed text
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.setFont('helvetica');
-    doc.setFontSize(12);
+const pageWidth = doc.internal.pageSize.getWidth();
+const pageHeight = doc.internal.pageSize.getHeight();
+const margin = 20;
+const maxWidth = pageWidth - margin * 2;
+const lineHeight = 7;
+let yPosition = title ? 35 : 20;
 
-    const title = workflowId || 'Processed Notes';
-    if (title) {
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text(title, 20, 20);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-    }
+const lines = doc.splitTextToSize(processedText, maxWidth);
+for (let i = 0; i < lines.length; i++) {
+if (yPosition + lineHeight > pageHeight - margin) {
+doc.addPage();
+yPosition = margin;
+}
+doc.text(lines[i], margin, yPosition);
+yPosition += lineHeight;
+}
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const maxWidth = pageWidth - margin * 2;
-    const lineHeight = 7;
-    let yPosition = title ? 35 : 20;
+const pdfArray = doc.output('arraybuffer');
+const pdfBase64 = Buffer.from(pdfArray).toString('base64');
 
-    const lines = doc.splitTextToSize(processedText, maxWidth);
-    for (let i = 0; i < lines.length; i++) {
-      if (yPosition + lineHeight > pageHeight - margin) {
-        doc.addPage();
-        yPosition = margin;
-      }
-      doc.text(lines[i], margin, yPosition);
-      yPosition += lineHeight;
-    }
+return NextResponse.json({ success: true, processedText, pdfBase64 });
+} catch (error: any) {
+console.error('Error processing handwritten PDF:', error);
+if (error?.status === 429) {
+return NextResponse.json(
+{
+error: 'API quota exceeded. Please wait a moment and try again, or check your Google Gemini API quota limits.',
+quotaExceeded: true,
+},
+{ status: 429 }
+);
+}
 
-    const pdfArray = doc.output('arraybuffer');
-    const pdfBase64 = Buffer.from(pdfArray).toString('base64');
-
-    return NextResponse.json({ success: true, processedText, pdfBase64 });
-  } catch (error: any) {
-    console.error('Error processing handwritten PDF:', error);
-    if (error?.status === 429) {
-      return NextResponse.json(
-        {
-          error: 'API quota exceeded. Please wait a moment and try again, or check your Google Gemini API quota limits.',
-          quotaExceeded: true,
-        },
-        { status: 429 }
-      );
-    }
-
-    return NextResponse.json({ error: error?.message || 'Failed to process PDF.' }, { status: 500 });
-  }
+return NextResponse.json({ error: error?.message || 'Failed to process PDF.' }, { status: 500 });
+}
 }

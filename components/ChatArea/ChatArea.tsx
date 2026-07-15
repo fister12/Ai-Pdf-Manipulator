@@ -4,14 +4,14 @@ import { useRef, useEffect } from "react";
 import { MessageSquare, Sparkles, BookOpen, Brain } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble, type Message } from "./MessageBubble";
+import { useChatContext } from "@/lib/context/ChatContext";
 
 interface ChatAreaProps {
-    messages: Message[];
-    isLoading?: boolean;
     userAvatar?: string;
 }
 
-export function ChatArea({ messages, isLoading, userAvatar }: ChatAreaProps) {
+export function ChatArea({ userAvatar }: ChatAreaProps) {
+    const { messages, isLoading } = useChatContext();
     const scrollRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
 
